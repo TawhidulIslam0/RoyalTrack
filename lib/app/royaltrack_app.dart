@@ -7,28 +7,71 @@ class RoyalTrackApp extends StatefulWidget {
   @override
   State<RoyalTrackApp> createState() => _RoyalTrackAppState();
 }
+
 class _RoyalTrackAppState extends State<RoyalTrackApp> {
   @override
   void initState() {
     super.initState();
     AppSettings.instance.addListener(_refresh);
   }
+
   @override
   void dispose() {
     AppSettings.instance.removeListener(_refresh);
     super.dispose();
   }
+
   void _refresh() => setState(() {});
+
+  ThemeData _buildTheme(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    const royalBlue = Color(0xFF2563EB);
+    const royalGold = Color(0xFFF5B82E);
+
+    final baseScheme = ColorScheme.fromSeed(
+      seedColor: royalBlue,
+      secondary: royalGold,
+      brightness: brightness,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: baseScheme,
+      scaffoldBackgroundColor:
+          isDark ? const Color(0xFF0E131F) : const Color(0xFFF1F5FB),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        color: isDark ? const Color(0xFF172033) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: BorderSide(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 68,
+        elevation: 3,
+        backgroundColor: isDark ? const Color(0xFF131B2E) : Colors.white,
+        indicatorColor: royalBlue.withValues(alpha: isDark ? 0.28 : 0.14),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final dark = AppSettings.instance.darkMode;
-    const seed = Color(0xFF4D8DFF);
     return MaterialApp(
       title: 'RoyalTrack',
       debugShowCheckedModeBanner: false,
       themeMode: dark ? ThemeMode.dark : ThemeMode.light,
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.light), useMaterial3: true, scaffoldBackgroundColor: const Color(0xFFF4F6FA), cardTheme: const CardThemeData(elevation: 0, margin: EdgeInsets.zero)),
-      darkTheme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark), useMaterial3: true, cardTheme: const CardThemeData(elevation: 0, margin: EdgeInsets.zero)),
+      theme: _buildTheme(Brightness.light),
+      darkTheme: _buildTheme(Brightness.dark),
       home: const MainShell(),
     );
   }
